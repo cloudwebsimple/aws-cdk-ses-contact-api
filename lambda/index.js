@@ -39,12 +39,23 @@ exports.handler = async (event) => {
 
     // Send email via SES
     await sesClient.send(new SendEmailCommand({
-      Source: process.env.SENDER_EMAIL,
+      Source: `Contact Form <${process.env.SENDER_EMAIL}>`,
       Destination: { ToAddresses: ["cloudwebsimple@gmail.com"] },
       Message: {
-        Subject: { Data: `CWS ContactForm: ${name}` },
+        Subject: { Data: `Website Contact: ${name}` },
         Body: {
-          Text: { Data: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}` }
+          Html: {
+            Data: `
+              <h3>New Contact Form Submission</h3>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Message:</strong></p>
+              <p>${message.replace(/\n/g, '<br>')}</p>
+              <hr>
+              <p><small>Sent via Contact Form API</small></p>
+            `
+          },
+          Text: { Data: `New Contact Form Submission\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}\n\n---\nSent via Contact Form API` }
         }
       }
     }));
